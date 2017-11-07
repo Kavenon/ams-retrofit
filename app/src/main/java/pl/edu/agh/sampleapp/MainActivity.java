@@ -40,9 +40,7 @@ public class MainActivity extends AppCompatActivity {
         service = ApiUtils.getService();
         servicePost = ApiUtils.getServiceBin();
         mRecyclerView = findViewById(R.id.rv_answers);
-        mAdapter = new BookAdapter(this, new ArrayList<>(0), id -> {
-            // skip
-        });
+        mAdapter = new BookAdapter(new ArrayList<>(0));
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -67,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     Log.d("MainActivity", "post failed..." + response.code() + ".." + call.request().url());
                 }
-                //
             }
 
             @Override

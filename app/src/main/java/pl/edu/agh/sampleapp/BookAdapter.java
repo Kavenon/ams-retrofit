@@ -12,35 +12,25 @@ import java.util.List;
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
  
     private List<Book> mItems;
-    private Context mContext;
-    private PostItemListener mItemListener;
- 
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
  
         public TextView titleTv;
-        PostItemListener mItemListener;
- 
-        public ViewHolder(View itemView, PostItemListener postItemListener) {
+
+        public ViewHolder(View itemView) {
             super(itemView);
             titleTv = itemView.findViewById(android.R.id.text1);
- 
-            this.mItemListener = postItemListener;
             itemView.setOnClickListener(this);
         }
  
         @Override
         public void onClick(View view) {
-//            Item item = getItem(getAdapterPosition());
-//            this.mItemListener.onPostClick(item.getAnswerId());
-//
-//            notifyDataSetChanged();
+            // ignore
         }
     }
  
-    public BookAdapter(Context context, List<Book> books, PostItemListener itemListener) {
+    public BookAdapter(List<Book> books) {
         mItems = books;
-        mContext = context;
-        mItemListener = itemListener;
     }
  
     @Override
@@ -51,7 +41,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
  
         View postView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
 
-        return new ViewHolder(postView, this.mItemListener);
+        return new ViewHolder(postView);
     }
  
     @Override
@@ -72,11 +62,4 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         notifyDataSetChanged();
     }
  
-    private Book getItem(int adapterPosition) {
-        return mItems.get(adapterPosition);
-    }
- 
-    public interface PostItemListener {
-        void onPostClick(long id);
-    }
 }
