@@ -4,26 +4,97 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity {
+
+    private BookAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private ExampleService service;
+    private ExampleService servicePost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> postBook());
+
+        service = ApiUtils.getService();
+        servicePost = ApiUtils.getServiceBin();
+        mRecyclerView = findViewById(R.id.rv_answers);
+        mAdapter = new BookAdapter(this, new ArrayList<>(0), id -> {
+            // skip
+        });
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setHasFixedSize(true);
+        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        mRecyclerView.addItemDecoration(itemDecoration);
+
+        loadBooks();
+
+    }
+
+    public void postBook() {
+        Log.d("MainActivity", "posting...");
+        Book book = new Book("test");
+        servicePost.postBook(book).enqueue(new Callback<Void>() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Snackbar.make(mRecyclerView, "POST success", Snackbar.LENGTH_LONG).show();
+                }
+                else {
+                    Log.d("MainActivity", "post failed..." + response.code() + ".." + call.request().url());
+                }
+                //
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.d("MainActivity", "post failed..." + t.getMessage());
+                // ignore
+            }
+        });
+    }
+
+    public void loadBooks() {
+        service.getBooks().enqueue(new Callback<List<Book>>() {
+            @Override
+            public void onResponse(Call<List<Book>> call, Response<List<Book>> response) {
+
+                if (response.isSuccessful()) {
+                    mAdapter.updateBooks(response.body());
+                    Log.d("MainActivity", "posts loaded from API");
+                } else {
+                    int statusCode = response.code();
+                    Log.d("MainActivity", "error" + statusCode);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Book>> call, Throwable t) {
+                Log.d("MainActivity", "error loading from API");
             }
         });
     }

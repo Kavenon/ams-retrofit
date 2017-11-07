@@ -1,8 +1,8 @@
 package pl.edu.agh.sampleapp;
 
-/**
- * Created by kamil on 07.11.17.
- */
-
 public interface Config {
+
+    String getURL = "/bins/12bj0n";
+    String postURL = "/133jzct1";
+
 }
